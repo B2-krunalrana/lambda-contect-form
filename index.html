@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submit to Lambda Function</title>
+    <title>Contact Form - Lambda Integration</title>
     <style>
         * {
             box-sizing: border-box;
@@ -15,7 +15,8 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333;
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             padding: 20px;
         }
         
@@ -23,93 +24,119 @@
             max-width: 600px;
             margin: 0 auto;
             background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
         
         h1 {
             text-align: center;
             color: #2c3e50;
             margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #f0f0f0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        
-        input, textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-        }
-        
-        textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-        
-        .submit-btn {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 14px 20px;
-            font-size: 18px;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            transition: background-color 0.3s;
-        }
-        
-        .submit-btn:hover {
-            background-color: #2980b9;
-        }
-        
-        .submit-btn:disabled {
-            background-color: #95a5a6;
-            cursor: not-allowed;
-        }
-        
-        .message {
+        .status-box {
             padding: 15px;
-            border-radius: 6px;
-            margin-top: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
             text-align: center;
+            font-weight: 500;
             display: none;
         }
         
-        .success {
+        .status-success {
             background-color: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
         
-        .error {
+        .status-error {
             background-color: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
         
-        .loading {
+        .status-loading {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 15px;
+        }
+        
+        label:after {
+            content: " *";
+            color: #e74c3c;
+            margin-left: 4px;
+        }
+        
+        .optional:after {
+            content: "";
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 30px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading-spinner {
             display: inline-block;
             width: 20px;
             height: 20px;
@@ -118,6 +145,7 @@
             border-top-color: white;
             animation: spin 1s ease-in-out infinite;
             margin-right: 10px;
+            vertical-align: middle;
         }
         
         @keyframes spin {
@@ -125,154 +153,257 @@
         }
         
         .form-note {
-            font-size: 14px;
+            font-size: 13px;
             color: #7f8c8d;
-            margin-top: 5px;
+            margin-top: 6px;
+            font-style: italic;
         }
         
-        .required {
-            color: #e74c3c;
+        .response-details {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .response-details h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .preview-mode {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+        }
+        
+        @media (max-width: 640px) {
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            input, textarea {
+                padding: 12px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Contact Information Form</h1>
+        <h1>Contact Form Submission</h1>
         
-        <div id="message" class="message"></div>
+        <div id="statusBox" class="status-box"></div>
         
-        <form id="lambdaForm">
-            <div class="form-group">
-                <label for="name">Full Name <span class="required">*</span></label>
-                <input type="text" id="name" name="name" required placeholder="Enter your full name">
+        <form id="contactForm">
+            <div class="preview-mode">
+                <strong>📋 Test Mode:</strong> Form data will be sent directly to your Lambda Function URL
             </div>
             
             <div class="form-group">
-                <label for="email">Email Address <span class="required">*</span></label>
-                <input type="email" id="email" name="email" required placeholder="Enter your email address">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required 
+                       placeholder="Enter your full name (e.g., Jane Smith)">
             </div>
             
             <div class="form-group">
-                <label for="phone">Phone Number <span class="required">*</span></label>
-                <input type="tel" id="phone" name="phone" required placeholder="Enter your phone number with country code">
-                <div class="form-note">Example: +9876543210</div>
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required 
+                       placeholder="Enter your email address">
+                <div class="form-note">You'll receive a confirmation email at this address</div>
             </div>
             
             <div class="form-group">
-                <label for="company">Company</label>
-                <input type="text" id="company" name="company" placeholder="Enter your company name">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" required 
+                       placeholder="e.g., +9876543210">
+                <div class="form-note">Include country code</div>
             </div>
             
             <div class="form-group">
-                <label for="remarks">Remarks / Message</label>
-                <textarea id="remarks" name="remarks" placeholder="Enter any additional remarks or message"></textarea>
+                <label for="company" class="optional">Company (Optional)</label>
+                <input type="text" id="company" name="company" 
+                       placeholder="Enter your company name">
+            </div>
+            
+            <div class="form-group">
+                <label for="remarks">Message / Remarks</label>
+                <textarea id="remarks" name="remarks" required 
+                          placeholder="Enter your message here..."></textarea>
+                <div class="form-note">Please provide details about your inquiry</div>
             </div>
             
             <button type="submit" class="submit-btn" id="submitBtn">
-                <span id="btnText">Submit to Lambda</span>
-                <span id="btnLoading" class="loading" style="display: none;"></span>
+                <span id="btnText">Submit to Lambda Function</span>
+                <span id="btnSpinner" class="loading-spinner" style="display: none;"></span>
             </button>
         </form>
+        
+        <div class="response-details" id="responseDetails" style="display: none;">
+            <h3>Response Details</h3>
+            <div id="responseContent"></div>
+        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('lambdaForm');
+            const form = document.getElementById('contactForm');
             const submitBtn = document.getElementById('submitBtn');
             const btnText = document.getElementById('btnText');
-            const btnLoading = document.getElementById('btnLoading');
-            const messageDiv = document.getElementById('message');
+            const btnSpinner = document.getElementById('btnSpinner');
+            const statusBox = document.getElementById('statusBox');
+            const responseDetails = document.getElementById('responseDetails');
+            const responseContent = document.getElementById('responseContent');
             
             // Your Lambda Function URL
             const LAMBDA_URL = 'https://4owys4ybvoe47p7l3ai475by0xjezd.lambda-url.ap-south-1.on.aws/';
+            
+            // Pre-fill with test data for easy testing
+            function prefillTestData() {
+                document.getElementById('name').value = 'Jane Smith';
+                document.getElementById('email').value = 'krunalrana.ahaguru@gmail.com';
+                document.getElementById('phone').value = '+9876543210';
+                document.getElementById('company').value = 'Demo Inc';
+                document.getElementById('remarks').value = 'Testing Lambda function integration with email notifications';
+            }
+            
+            // Uncomment to auto-fill test data
+            prefillTestData();
             
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 // Show loading state
                 submitBtn.disabled = true;
-                btnText.textContent = 'Submitting...';
-                btnLoading.style.display = 'inline-block';
-                messageDiv.style.display = 'none';
+                btnText.textContent = 'Sending to Lambda...';
+                btnSpinner.style.display = 'inline-block';
+                responseDetails.style.display = 'none';
+                showStatus('Sending request to Lambda Function...', 'loading');
                 
-                // Get form data
+                // Collect form data
                 const formData = {
                     name: document.getElementById('name').value.trim(),
                     email: document.getElementById('email').value.trim(),
                     phone: document.getElementById('phone').value.trim(),
                     company: document.getElementById('company').value.trim(),
                     remarks: document.getElementById('remarks').value.trim()
+                    // Note: Attachment handling would be added here if needed
                 };
                 
                 // Validate required fields
-                if (!formData.name || !formData.email || !formData.phone) {
-                    showMessage('Please fill in all required fields', 'error');
+                if (!formData.name || !formData.email || !formData.phone || !formData.remarks) {
+                    showStatus('Please fill in all required fields', 'error');
                     resetButton();
                     return;
                 }
                 
                 try {
-                    // Create the request body as per your requirement
-                    const requestBody = {
-                        body: JSON.stringify(formData)
-                    };
+                    console.log('Sending data to Lambda:', formData);
                     
-                    // Send request to Lambda Function URL
+                    // Send POST request directly to Lambda Function URL
                     const response = await fetch(LAMBDA_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            // Add Origin header for CORS
+                            'Origin': window.location.origin
                         },
-                        body: JSON.stringify(requestBody)
+                        body: JSON.stringify(formData)  // Send directly, not wrapped in "body" property
                     });
                     
-                    const responseData = await response.json();
+                    console.log('Response status:', response.status);
+                    
+                    const responseText = await response.text();
+                    console.log('Response text:', responseText);
+                    
+                    let responseData;
+                    try {
+                        responseData = JSON.parse(responseText);
+                    } catch (e) {
+                        responseData = { message: responseText };
+                    }
                     
                     if (response.ok) {
-                        showMessage('Data submitted successfully to Lambda!', 'success');
-                        form.reset();
+                        showStatus('✅ Success! Data submitted to Lambda and emails sent.', 'success');
+                        
+                        // Show detailed response
+                        responseContent.innerHTML = `
+                            <p><strong>Message:</strong> ${responseData.message || 'Success'}</p>
+                            <p><strong>Submission ID:</strong> ${responseData.data?.submission_id || 'N/A'}</p>
+                            <p><strong>Timestamp:</strong> ${responseData.timestamp || new Date().toISOString()}</p>
+                            ${responseData.data?.email_results ? `
+                            <p><strong>Email Results:</strong></p>
+                            <ul>
+                                <li>Thank You Email: ${responseData.data.email_results.thank_you ? '✅ Sent' : '❌ Failed'}</li>
+                                <li>Form Filter Team: ${responseData.data.email_results.form_filter ? '✅ Sent' : '❌ Failed'}</li>
+                                <li>Sales Team: ${responseData.data.email_results.sales_team ? '✅ Sent' : '❌ Failed'}</li>
+                            </ul>
+                            ` : ''}
+                        `;
+                        responseDetails.style.display = 'block';
+                        
+                        // Optional: Clear form after successful submission
+                        // form.reset();
+                        
                     } else {
-                        throw new Error(responseData.message || 'Failed to submit data');
+                        throw new Error(responseData.message || `HTTP ${response.status}: ${response.statusText}`);
                     }
                     
                 } catch (error) {
                     console.error('Error:', error);
-                    showMessage(`Error: ${error.message}`, 'error');
+                    
+                    let errorMessage = error.message;
+                    
+                    // Handle CORS-specific errors
+                    if (errorMessage.includes('CORS') || errorMessage.includes('cross-origin')) {
+                        errorMessage = 'CORS error. Make sure your Lambda function handles OPTIONS requests.';
+                    } else if (errorMessage.includes('Failed to fetch')) {
+                        errorMessage = 'Network error. Check if Lambda Function URL is correct.';
+                    }
+                    
+                    showStatus(`❌ Error: ${errorMessage}`, 'error');
+                    
+                    // Show error details
+                    responseContent.innerHTML = `
+                        <p><strong>Error:</strong> ${errorMessage}</p>
+                        <p><strong>Solution:</strong> Check Lambda function logs and ensure CORS is configured.</p>
+                    `;
+                    responseDetails.style.display = 'block';
                 } finally {
                     resetButton();
                 }
             });
             
-            function showMessage(text, type) {
-                messageDiv.textContent = text;
-                messageDiv.className = `message ${type}`;
-                messageDiv.style.display = 'block';
-                
-                // Auto-hide success messages after 5 seconds
-                if (type === 'success') {
-                    setTimeout(() => {
-                        messageDiv.style.display = 'none';
-                    }, 5000);
-                }
+            function showStatus(message, type) {
+                statusBox.textContent = message;
+                statusBox.className = `status-box status-${type}`;
+                statusBox.style.display = 'block';
             }
             
             function resetButton() {
                 submitBtn.disabled = false;
-                btnText.textContent = 'Submit to Lambda';
-                btnLoading.style.display = 'none';
+                btnText.textContent = 'Submit to Lambda Function';
+                btnSpinner.style.display = 'none';
             }
             
-            // Optional: Pre-fill form with sample data for testing
-            function prefillTestData() {
-                document.getElementById('name').value = 'Jane Smith';
-                document.getElementById('email').value = 'krunalrana.ahaguru@gmail.com';
-                document.getElementById('phone').value = '+9876543210';
-                document.getElementById('company').value = 'Demo Inc';
-                document.getElementById('remarks').value = 'Testing attachment functionality';
+            // Test the Lambda function with a simple GET request
+            async function testLambdaConnection() {
+                try {
+                    const response = await fetch(LAMBDA_URL);
+                    console.log('Lambda connection test:', response.status);
+                } catch (error) {
+                    console.log('Lambda connection test failed:', error.message);
+                }
             }
             
-            // Uncomment the line below to pre-fill form with test data
-            // prefillTestData();
+            // Optional: Test connection on page load
+            // testLambdaConnection();
         });
     </script>
 </body>
